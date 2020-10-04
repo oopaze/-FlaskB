@@ -5,9 +5,13 @@ class User(db.Model):
 
     id = db.Column(db.Integer,primary_key = True)
     username = db.Column(db.String,unique = True)
-    password = db.COlumn(db.String)
-    name = db.COnlumn(db.String)
-    email = db.COlumn(db.String, unique = True)
+    password = db.Column(db.String)
+    name = db.Column(db.String)
+    email = db.Column(db.String, unique = True)
+
+    followers = db.relationship('User', secondary='followers',
+                              backref=db.backref('users', lazy='dynamic'))
+
 
     def __init__(self,username,password,name,email): #valores obrigatorios
         self.username = username
@@ -23,9 +27,9 @@ class Post(db.Model):
 
     id = db.Column(db.Integer,primary_key = True)
     content = db.Column(db.Text)
-    user_id = db.Column(db.Integer,db.Foreignkey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    user = db.teltionship('User',foreignkeys=user_id)
+    user = db.relationship('User')
 
     def __init__(self,content,user_id):
         self.content = content
@@ -34,12 +38,10 @@ class Post(db.Model):
     def __repr__(self):
         return "<Post %r>" % self.id
 
-class Follow(db.Model):
-    __tablename__ = 'follow'
+Follow = db.Table(
+    'followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
+)
 
-    id = db.Column(db.Integer,primary_key)
-    user_id = db.Column(db.Integer,db.Foreignkey('users.id'))
-    follower_id = db.Column(db.Integer,db.Foreignkey('users.id'))
 
-    user = db.relationship('User',foreignkeys=user_id)
-    follower = db.relationship('User',foreignkeys=follower_id)
